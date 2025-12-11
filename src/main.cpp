@@ -16,9 +16,8 @@
 #include "EBO.h"
 #include "Camera.h"
 
-// подключаем класс Sphere
 #include "Sphere.h"
-#include "Grid.h"
+#include "Line.h"
 
 const unsigned int width = 1920;
 const unsigned int height = 1080;
@@ -81,20 +80,15 @@ int main()
 
 
         // Шейдер и камера
-
         Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
         Camera camera(width, height, glm::vec3(0.0f, 1.0f, 3.0f));
-
-        //Grid* grid = new Grid(10.0f, 10, glm::vec3(0.8f,0.8f,0.8f));
         
         // Создаем несколько сфер
         std::vector<Shape*> spheres;
         spheres.push_back(Sphere::Create(0.5f, 0, 0, 0, 125, 0, 0));    // radius, X, Y, Z, RGB
+        spheres.push_back(Line::Create(-1,0,0, 1,0,0, 255,0,0));
 
-
-        // ==============================
         // Главный цикл
-        // ==============================
         while (!glfwWindowShouldClose(window))
         {
             float time = glfwGetTime();
@@ -132,15 +126,11 @@ int main()
             {
                 s->Draw(shaderProgram, view, projection, time);
             }
-
-
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
-
-        // ==============================
+        
         // Очистка
-        // ==============================
         for (auto s : spheres) delete s;
 
         shaderProgram.Delete();

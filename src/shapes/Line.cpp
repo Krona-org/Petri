@@ -37,3 +37,4 @@ void Line::SetColor(const glm::vec3& col)
     lineColor = col;
     // для обновления VBO можно перезаписать данные вершин
 }
+
