@@ -18,6 +18,7 @@
 
 #include "Sphere.h"
 #include "Line.h"
+#include "Grid.h"
 
 const unsigned int width = 1920;
 const unsigned int height = 1080;
@@ -87,6 +88,7 @@ int main()
         std::vector<Shape*> spheres;
         spheres.push_back(Sphere::Create(0.5f, 0, 0, 0, 125, 0, 0));    // radius, X, Y, Z, RGB
         spheres.push_back(Line::Create(-1,0,0, 1,0,0, 255,0,0));
+        spheres.push_back(Grid::Create(500.0f, 1000, 200, 200, 200));
 
         // Главный цикл
         while (!glfwWindowShouldClose(window))
@@ -124,7 +126,7 @@ int main()
             // отрисовка всех сфер
             for (auto s : spheres)
             {
-                s->Draw(shaderProgram, view, projection, time);
+                s->Draw(shaderProgram, view, projection, 0.0f); // time эт отипо вращение
             }
             glfwSwapBuffers(window);
             glfwPollEvents();
