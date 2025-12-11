@@ -16,7 +16,7 @@ Line::Line(const glm::vec3& start, const glm::vec3& end, const glm::vec3& color)
     vao.Unbind();
 }
 
-void Line::Draw(Shader& shader)
+void Line::Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, float time)
 {
     shader.Activate();
     vao.Bind();

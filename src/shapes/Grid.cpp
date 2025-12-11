@@ -22,10 +22,10 @@ Grid::Grid(float size, int divisions, const glm::vec3& color)
     }
 }
 
-void Grid::Draw(Shader& shader)
+void Grid::Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, float time)
 {
     for (auto l : lines)
-        l->Draw(shader);
+        l->Draw(shader, NULL, NULL, NULL);
 }
 
 void Grid::SetPosition(const glm::vec3& pos)

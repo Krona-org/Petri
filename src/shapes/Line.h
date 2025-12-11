@@ -11,7 +11,7 @@ class Line : public Shape {
 public:
     Line(const glm::vec3& start, const glm::vec3& end, const glm::vec3& color);
 
-    void Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, float time);
+    void Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, float time) override;
     void Update(float deltaTime) override {}
     void SetPosition(const glm::vec3& pos) override;
     void SetColor(const glm::vec3& col) override;

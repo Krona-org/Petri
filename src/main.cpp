@@ -85,7 +85,7 @@ int main()
         Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
         Camera camera(width, height, glm::vec3(0.0f, 1.0f, 3.0f));
 
-        Grid* grid = new Grid(10.0f, 10, glm::vec3(0.8f,0.8f,0.8f));
+        //Grid* grid = new Grid(10.0f, 10, glm::vec3(0.8f,0.8f,0.8f));
         
         // Создаем несколько сфер
         std::vector<Shape*> spheres;

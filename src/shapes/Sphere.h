@@ -12,7 +12,7 @@ public:
     Sphere(float radius, const glm::vec3& pos, const glm::vec3& col);
     ~Sphere();
 
-    void Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, float time);
+    void Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, float time) override;
     bool CheckHover(const glm::vec3& rayOrigin, const glm::vec3& rayDir) override;
 
     void SetRadius(float r) { radius = r; }
