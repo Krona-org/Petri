@@ -24,6 +24,7 @@ public:
     }
     void Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, float time) override;
     void SetPosition(const glm::vec3& pos) override;
+    void MoveBy(const glm::vec3& delta); // смещение на delta
     void SetColor(const glm::vec3& col) override;
     bool CheckHover(const glm::vec3& rayOrigin, const glm::vec3& rayDir) override { return false; }
 

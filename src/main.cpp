@@ -86,9 +86,8 @@ int main()
         
         // Создаем несколько сфер
         std::vector<Shape*> spheres;
-        spheres.push_back(Sphere::Create(0.5f, 0, 0, 0, 125, 0, 0));    // radius, X, Y, Z, RGB
-        spheres.push_back(Line::Create(-1,0,0, 1,0,0, 255,0,0));
-        spheres.push_back(Grid::Create(500.0f, 1000, 200, 200, 200));
+        spheres.push_back(Sphere::Create(1.0f, 0, 2, 0, 125, 0, 0));    // radius, X, Y, Z, RGB
+        spheres.push_back(Sphere::Create(1.0f, 3, 2, 1, 125, 0, 0));    // radius, X, Y, Z, RGB
 
         // Главный цикл
         while (!glfwWindowShouldClose(window))

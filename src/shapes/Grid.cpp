@@ -25,15 +25,20 @@ Grid::Grid(float size, int divisions, const glm::vec3& color)
 void Grid::Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, float time)
 {
     for (auto l : lines)
-        l->Draw(shader, glm::mat4(1.0f), glm::mat4(1.0f), 0.0f);
+        l->Draw(shader, view, projection, time);
 }
 
 void Grid::SetPosition(const glm::vec3& pos)
 {
-    for (auto l : lines)
-        l->SetPosition(pos);
-}
+    glm::vec3 delta = pos - position;
+    position = pos;
 
+    for (size_t i = 0; i < lines.size(); ++i)
+    {
+        // каждый Line смещаем на delta
+        lines[i]->MoveBy(delta);
+    }
+}
 void Grid::SetColor(const glm::vec3& col)
 {
     for (auto l : lines)

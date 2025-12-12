@@ -19,10 +19,19 @@ Line::Line(const glm::vec3& start, const glm::vec3& end, const glm::vec3& color)
 void Line::Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, float time)
 {
     shader.Activate();
+
+    // Линии должны иметь модельную матрицу по умолчанию
+    glm::mat4 model = glm::mat4(1.0f);
+
+    shader.setMat4("model", model);
+    shader.setMat4("view", view);
+    shader.setMat4("projection", projection);
+
     vao.Bind();
     glDrawArrays(GL_LINES, 0, 2);
     vao.Unbind();
 }
+
 
 void Line::SetPosition(const glm::vec3& pos)
 {
@@ -37,4 +46,20 @@ void Line::SetColor(const glm::vec3& col)
     lineColor = col;
     // для обновления VBO можно перезаписать данные вершин
 }
+void Line::MoveBy(const glm::vec3& delta)
+{
+    startPoint += delta;
+    endPoint += delta;
+
+    // Обновляем VBO после смещения
+    std::vector<float> vertices = {
+        startPoint.x, startPoint.y, startPoint.z, lineColor.r, lineColor.g, lineColor.b,
+        endPoint.x, endPoint.y, endPoint.z, lineColor.r, lineColor.g, lineColor.b
+    };
+
+    vbo->Bind();
+    vbo->SetData(vertices.data(), vertices.size() * sizeof(float));
+    vbo->Unbind();
+}
+
 

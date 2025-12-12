@@ -13,6 +13,7 @@ class VBO
 
 		void Bind();
 		void Unbind();
+		void SetData(void* data, GLsizeiptr size);
 		void Delete();
 };
 
