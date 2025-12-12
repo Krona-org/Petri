@@ -3,11 +3,8 @@
 #include <cmath>
 #include <exception>
 
-#include "Window.h"       // новый класс окна
+#include "Window.h"       // заменили прямое использование GLFWwindow* на наш класс Window
 #include "shaderClass.h"
-#include "VAO.h"
-#include "VBO.h"
-#include "EBO.h"
 #include "Camera.h"
 #include "TimeGL.h"
 
@@ -18,6 +15,7 @@
 const unsigned int width = 1920;
 const unsigned int height = 1080;
 
+// генерация луча из позиции мыши (без изменений)
 glm::vec3 getRayFromMouse(double mouseX, double mouseY, int width, int height,
                           const glm::mat4& projection, const glm::mat4& view)
 {
@@ -35,6 +33,7 @@ glm::vec3 getRayFromMouse(double mouseX, double mouseY, int width, int height,
     return glm::normalize(ray_wor);
 }
 
+// теперь используем Window, а не GLFW напрямую
 void framebuffer_size_callback(GLFWwindow* window, int w, int h)
 {
     glViewport(0, 0, w, h);
@@ -44,22 +43,26 @@ int main()
 {
     try
     {
-        Window win(width, height, "Animated Sphere");  // создаем окно
-        win.SetFramebufferSizeCallback(framebuffer_size_callback);
+        // создаём окно через класс Window (ранее initGL + glfwCreateWindow)
+        Window win(width, height, "Animated Sphere");
 
-        // Шейдер и камера
+        // устанавливаем callback через метод окна (ранее glfwSetFramebufferSizeCallback напрямую)
+        win.SetFramebufferSizeCallback([](GLFWwindow* w, int newW, int newH)
+        {
+            glViewport(0, 0, newW, newH);
+        });
+
         Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
         Camera camera(width, height, glm::vec3(0.0f, 1.0f, 3.0f));
 
-        // Таймер
-        TimeGL timer;
+        TimeGL timer; // таймер остался без изменений
 
-        // Создаем сферы
+        // создаём объекты сцены
         std::vector<Shape*> spheres;
         spheres.push_back(Sphere::Create(1.0f, 0, 2, 0, 125, 0, 0));
         spheres.push_back(Sphere::Create(1.0f, 3, 2, 1, 125, 0, 0));
 
-        while (!win.ShouldClose())
+        while (!win.ShouldClose())  // теперь проверка через Window, а не glfwWindowShouldClose
         {
             timer.Update();
             float dt = timer.GetDeltaTime();
@@ -73,32 +76,20 @@ int main()
             );
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            camera.Inputs(win.window);
+            camera.Inputs(win.window); // используем GLFWwindow из нашего класса Window
 
-            glm::mat4 view = glm::lookAt(
-                camera.Position,
-                camera.Position + camera.Orientation,
-                camera.Up
-            );
-
-            glm::mat4 projection = glm::perspective(
-                glm::radians(45.0f),
-                (float)width / height,
-                0.1f,
-                100.0f
-            );
+            glm::mat4 view = glm::lookAt(camera.Position, camera.Position + camera.Orientation, camera.Up);
+            glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
 
             double mouseX, mouseY;
             glfwGetCursorPos(win.window, &mouseX, &mouseY);
             glm::vec3 rayDir = getRayFromMouse(mouseX, mouseY, width, height, projection, view);
 
             for (auto s : spheres)
-            {
-                s->Draw(shaderProgram, view, projection, t);
-            }
+                s->Draw(shaderProgram, view, projection, t); // totalTime для анимации
 
-            win.SwapBuffers();
-            win.PollEvents();
+            win.SwapBuffers(); // теперь через Window
+            win.PollEvents();  // теперь через Window
         }
 
         for (auto s : spheres) delete s;

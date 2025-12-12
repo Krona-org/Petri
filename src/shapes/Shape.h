@@ -11,6 +11,7 @@ public:
 
     virtual void Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, float time) = 0;
     virtual void Update(float deltaTime) {}
+    virtual void Update(float totalTime, float deltaTime) {}
     virtual bool CheckHover(const glm::vec3& rayOrigin, const glm::vec3& rayDir) = 0;
 
     virtual void SetPosition(const glm::vec3& pos) { position = pos; }
