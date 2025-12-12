@@ -15,6 +15,7 @@
 #include "VBO.h"
 #include "EBO.h"
 #include "Camera.h"
+#include "TimeGL.h"  // добавляем наш таймер
 
 #include "Sphere.h"
 #include "Line.h"
@@ -57,6 +58,7 @@ glm::vec3 getRayFromMouse(double mouseX, double mouseY, int width, int height,
     return glm::normalize(ray_wor);
 }
 
+
 int main()
 {
     try
@@ -76,28 +78,32 @@ int main()
         glViewport(0, 0, width, height);
         glEnable(GL_DEPTH_TEST);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
 
         // Шейдер и камера
         Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
         Camera camera(width, height, glm::vec3(0.0f, 1.0f, 3.0f));
-        
+
+        // Таймер
+        TimeGL timer;
+
         // Создаем несколько сфер
         std::vector<Shape*> spheres;
-        spheres.push_back(Sphere::Create(1.0f, 0, 2, 0, 125, 0, 0));    // radius, X, Y, Z, RGB
-        spheres.push_back(Sphere::Create(1.0f, 3, 2, 1, 125, 0, 0));    // radius, X, Y, Z, RGB
+        spheres.push_back(Sphere::Create(1.0f, 0, 2, 0, 125, 0, 0));
+        spheres.push_back(Sphere::Create(1.0f, 3, 2, 1, 125, 0, 0));
 
         // Главный цикл
         while (!glfwWindowShouldClose(window))
         {
-            float time = glfwGetTime();
+            timer.Update(); // обновляем время
+
+            float dt = timer.GetDeltaTime();     // время между кадрами
+            float t  = timer.GetTotalTime();     // общее время работы
 
             glClearColor(
-                0.1f + 0.05f * sin(time),
-                0.1f + 0.05f * cos(time),
-                0.2f + 0.05f * sin(time * 1.3f),
+                0.1f + 0.05f * sin(t),
+                0.1f + 0.05f * cos(t),
+                0.2f + 0.05f * sin(t * 1.3f),
                 1.0f
             );
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -125,15 +131,15 @@ int main()
             // отрисовка всех сфер
             for (auto s : spheres)
             {
-                s->Draw(shaderProgram, view, projection, 0.0f); // time эт отипо вращение
+                s->Draw(shaderProgram, view, projection, t); // используем totalTime для анимаций
             }
+
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
-        
+
         // Очистка
         for (auto s : spheres) delete s;
-
         shaderProgram.Delete();
         glfwDestroyWindow(window);
         glfwTerminate();
