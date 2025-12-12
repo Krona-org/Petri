@@ -1,22 +1,20 @@
 #pragma once
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <string>
 
 class Window
 {
-private:
-    GLFWwindow* window;
-    int width, height;
-    std::string title;
-
 public:
-    Window(int w, int h, const std::string& t);
+    int width, height;
+    GLFWwindow* window;
+
+    Window(int w, int h, const std::string& title);
     ~Window();
 
-    bool Init();                 // Создание окна и инициализация GLAD
-    void Clear(float r, float g, float b, float a);
+    bool ShouldClose();
     void SwapBuffers();
     void PollEvents();
-    bool ShouldClose();
-    GLFWwindow* GetGLFWwindow();
+
+    void SetFramebufferSizeCallback(GLFWframebuffersizefun callback);
 };

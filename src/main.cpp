@@ -3,19 +3,13 @@
 #include <cmath>
 #include <exception>
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
+#include "Window.h"       // новый класс окна
 #include "shaderClass.h"
 #include "VAO.h"
 #include "VBO.h"
 #include "EBO.h"
 #include "Camera.h"
-#include "TimeGL.h"  // добавляем наш таймер
+#include "TimeGL.h"
 
 #include "Sphere.h"
 #include "Line.h"
@@ -24,23 +18,6 @@
 const unsigned int width = 1920;
 const unsigned int height = 1080;
 
-void framebuffer_size_callback(GLFWwindow* window, int w, int h)
-{
-    glViewport(0, 0, w, h);
-}
-
-bool initGL()
-{
-    if (!glfwInit()) return false;
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    return true;
-}
-
-// функция для генерации луча из позиции мыши
 glm::vec3 getRayFromMouse(double mouseX, double mouseY, int width, int height,
                           const glm::mat4& projection, const glm::mat4& view)
 {
@@ -58,27 +35,17 @@ glm::vec3 getRayFromMouse(double mouseX, double mouseY, int width, int height,
     return glm::normalize(ray_wor);
 }
 
+void framebuffer_size_callback(GLFWwindow* window, int w, int h)
+{
+    glViewport(0, 0, w, h);
+}
 
 int main()
 {
     try
     {
-        if (!initGL())
-            throw std::runtime_error("GLFW init failed");
-
-        GLFWwindow* window = glfwCreateWindow(width, height, "Animated Sphere", nullptr, nullptr);
-        if (!window)
-            throw std::runtime_error("Window creation failed");
-
-        glfwMakeContextCurrent(window);
-
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-            throw std::runtime_error("GLAD init failed");
-
-        glViewport(0, 0, width, height);
-        glEnable(GL_DEPTH_TEST);
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+        Window win(width, height, "Animated Sphere");  // создаем окно
+        win.SetFramebufferSizeCallback(framebuffer_size_callback);
 
         // Шейдер и камера
         Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
@@ -87,18 +54,16 @@ int main()
         // Таймер
         TimeGL timer;
 
-        // Создаем несколько сфер
+        // Создаем сферы
         std::vector<Shape*> spheres;
         spheres.push_back(Sphere::Create(1.0f, 0, 2, 0, 125, 0, 0));
         spheres.push_back(Sphere::Create(1.0f, 3, 2, 1, 125, 0, 0));
 
-        // Главный цикл
-        while (!glfwWindowShouldClose(window))
+        while (!win.ShouldClose())
         {
-            timer.Update(); // обновляем время
-
-            float dt = timer.GetDeltaTime();     // время между кадрами
-            float t  = timer.GetTotalTime();     // общее время работы
+            timer.Update();
+            float dt = timer.GetDeltaTime();
+            float t  = timer.GetTotalTime();
 
             glClearColor(
                 0.1f + 0.05f * sin(t),
@@ -108,7 +73,7 @@ int main()
             );
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            camera.Inputs(window);
+            camera.Inputs(win.window);
 
             glm::mat4 view = glm::lookAt(
                 camera.Position,
@@ -123,31 +88,25 @@ int main()
                 100.0f
             );
 
-            // получение позиции мыши
             double mouseX, mouseY;
-            glfwGetCursorPos(window, &mouseX, &mouseY);
+            glfwGetCursorPos(win.window, &mouseX, &mouseY);
             glm::vec3 rayDir = getRayFromMouse(mouseX, mouseY, width, height, projection, view);
 
-            // отрисовка всех сфер
             for (auto s : spheres)
             {
-                s->Draw(shaderProgram, view, projection, t); // используем totalTime для анимаций
+                s->Draw(shaderProgram, view, projection, t);
             }
 
-            glfwSwapBuffers(window);
-            glfwPollEvents();
+            win.SwapBuffers();
+            win.PollEvents();
         }
 
-        // Очистка
         for (auto s : spheres) delete s;
         shaderProgram.Delete();
-        glfwDestroyWindow(window);
-        glfwTerminate();
     }
     catch (const std::exception& e)
     {
         std::cerr << "Ошибка: " << e.what() << std::endl;
-        glfwTerminate();
         return -1;
     }
 
