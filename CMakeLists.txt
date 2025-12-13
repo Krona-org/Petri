@@ -16,9 +16,9 @@ add_executable(app ${SOURCES})
 target_include_directories(app PRIVATE
     ${CMAKE_SOURCE_DIR}/inc        # glad, GLFW, glm
     ${CMAKE_SOURCE_DIR}/src        # main.cpp и др.
-    ${CMAKE_SOURCE_DIR}/src/res    # shaderClass.h, VAO.h, VBO.h, EBO.h, Camera.h
-    ${CMAKE_SOURCE_DIR}/src/render
-    ${CMAKE_SOURCE_DIR}/src/shapes
+    ${CMAKE_SOURCE_DIR}/src/graphics    # shaderClass.h, VAO.h, VBO.h, EBO.h, Camera.h
+    ${CMAKE_SOURCE_DIR}/src/scene
+    ${CMAKE_SOURCE_DIR}/src/geometry
     ${CMAKE_SOURCE_DIR}/src/shaders
     ${CMAKE_SOURCE_DIR}/src/utils
     ${CMAKE_SOURCE_DIR}/src/core

@@ -19,7 +19,7 @@ int main()
     try
     {
         // Создаём окно через наш класс Window
-        Window win(width, height, "Animated Sphere");
+        Window win(width, height, "Название окна");
 
         // Шейдер
         Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
@@ -32,7 +32,7 @@ int main()
 
         // Добавляем объекты в сцену
         scene.AddShape(Sphere::Create(1.0f, 0, 2, 0, 125, 0, 0));
-        scene.AddShape(Sphere::Create(1.0f, 3, 2, 1, 125, 0, 0));
+        scene.AddShape(Sphere::Create(1.0f, 3, 2, 1, 0, 0, 0));
         scene.SetGrid(Grid::Create(500.0f, 100));  // сетка
 
         // Главный цикл
