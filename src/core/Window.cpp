@@ -1,5 +1,6 @@
 #include "Window.h"
 #include <iostream>
+#include <stdexcept>
 
 Window::Window(int w, int h, const std::string& title)
 {
@@ -21,6 +22,23 @@ Window::Window(int w, int h, const std::string& title)
     }
 
     glfwMakeContextCurrent(window);
+
+    // VSync по умолчанию (можно выключить позже через glfwSwapInterval(0))
+    glfwSwapInterval(1);
+
+    // Чтобы коллбэки могли менять поля Window
+    glfwSetWindowUserPointer(window, this);
+
+    // Коллбэк ресайза по умолчанию: обновляем viewport и размеры окна
+    glfwSetFramebufferSizeCallback(window, [](GLFWwindow* win, int w, int h)
+    {
+        if (auto* self = static_cast<Window*>(glfwGetWindowUserPointer(win)))
+        {
+            self->width = w;
+            self->height = h;
+        }
+        glViewport(0, 0, w, h);
+    });
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {

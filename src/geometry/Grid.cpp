@@ -8,18 +8,25 @@ Grid::Grid(float size, int divisions, const glm::vec3& color)
     float half = gridSize / 2.0f;
 
     // линии по X
-    for (int i = 0; i <= divisions; ++i)
+    for (int i = 0; i <= divisions; i++)
     {
         float pos = -half + i * step;
         lines.push_back(new Line(glm::vec3(pos, 0, -half), glm::vec3(pos, 0, half), gridColor));
     }
 
     // линии по Z
-    for (int i = 0; i <= divisions; ++i)
+    for (int i = 0; i <= divisions; i++)
     {
         float pos = -half + i * step;
         lines.push_back(new Line(glm::vec3(-half, 0, pos), glm::vec3(half, 0, pos), gridColor));
     }
+}
+
+Grid::~Grid()
+{
+    for (auto* l : lines)
+        delete l;
+    lines.clear();
 }
 
 void Grid::Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, float time)
@@ -33,12 +40,10 @@ void Grid::SetPosition(const glm::vec3& pos)
     glm::vec3 delta = pos - position;
     position = pos;
 
-    for (size_t i = 0; i < lines.size(); ++i)
-    {
-        // каждый Line смещаем на delta
+    for (size_t i = 0; i < lines.size(); i++)
         lines[i]->MoveBy(delta);
-    }
 }
+
 void Grid::SetColor(const glm::vec3& col)
 {
     for (auto l : lines)

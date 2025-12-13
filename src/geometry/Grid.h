@@ -9,6 +9,7 @@
 class Grid : public Shape {
 public:
     Grid(float size, int divisions, const glm::vec3& color);
+    ~Grid() override;
 
     static Grid* Create(float size, int divisions, int r = 200, int g = 200, int b = 200)
     {
@@ -16,7 +17,7 @@ public:
     }
 
     void Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, float time) override;
-    void Update(float deltaTime) override {}
+    void Update(float totalTime, float deltaTime) override {}
     void SetPosition(const glm::vec3& pos) override;
     void SetColor(const glm::vec3& col) override;
     bool CheckHover(const glm::vec3& rayOrigin, const glm::vec3& rayDir) override { return false; }

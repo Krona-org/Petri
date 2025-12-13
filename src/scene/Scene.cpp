@@ -44,7 +44,7 @@ void Scene::Update(float deltaTime) {
 
 void Scene::Draw(Shader& shader, Camera& camera) {
     glm::mat4 view = glm::lookAt(camera.Position, camera.Position + camera.Orientation, camera.Up);
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)camera.width / camera.height, 0.1f, 100.0f);
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)camera.width / camera.height, 0.1f, 1000.0f);
 
     if (grid)
         grid->Draw(shader, view, projection, timer.GetTotalTime());

@@ -20,16 +20,17 @@ Sphere::Sphere(float rad, const glm::vec3& pos, const glm::vec3& col)
     vbo = new VBO(vertices.data(), vertices.size() * sizeof(float));
     ebo = new EBO(indices.data(), indices.size() * sizeof(unsigned int));
 
-    vao.LinkAttrib(*vbo, 0, 3, GL_FLOAT, 9 * sizeof(float), (void*)0);  // позиция
-    vao.LinkAttrib(*vbo, 1, 3, GL_FLOAT, 9 * sizeof(float), (void*)(3 * sizeof(float)));  // цвет
-    vao.LinkAttrib(*vbo, 2, 3, GL_FLOAT, 9 * sizeof(float), (void*)(6 * sizeof(float)));  // нормаль
+    vao.LinkAttrib(*vbo, 0, 3, GL_FLOAT, 9 * sizeof(float), (void*)0);                     // позиция
+    vao.LinkAttrib(*vbo, 1, 3, GL_FLOAT, 9 * sizeof(float), (void*)(3 * sizeof(float)));   // цвет (пока оставляем)
+    vao.LinkAttrib(*vbo, 2, 3, GL_FLOAT, 9 * sizeof(float), (void*)(6 * sizeof(float)));   // нормаль
     vao.Unbind();
 }
 
 Sphere::~Sphere()
 {
-    delete vbo;
-    delete ebo;
+    if (vbo) { vbo->Delete(); delete vbo; vbo = nullptr; }
+    if (ebo) { ebo->Delete(); delete ebo; ebo = nullptr; }
+    vao.Delete();
 }
 
 void Sphere::generateMesh(std::vector<float>& vertices, std::vector<unsigned int>& indices)
@@ -56,10 +57,10 @@ void Sphere::generateMesh(std::vector<float>& vertices, std::vector<unsigned int
             vertices.push_back(yCoord);
             vertices.push_back(zCoord);
 
-            // Цвет
-            vertices.push_back(color.r );
-            vertices.push_back(color.g );
-            vertices.push_back(color.b );
+            // Цвет (можно потом убрать и оставить только objectColor)
+            vertices.push_back(color.r);
+            vertices.push_back(color.g);
+            vertices.push_back(color.b);
 
             // Нормаль
             glm::vec3 normal = glm::normalize(glm::vec3(xCoord, yCoord, zCoord));
@@ -69,7 +70,6 @@ void Sphere::generateMesh(std::vector<float>& vertices, std::vector<unsigned int
         }
     }
 
-    // Индексы
     for (int i = 0; i < stackCount; ++i)
     {
         unsigned int k1 = i * (sectorCount + 1);
@@ -105,8 +105,13 @@ void Sphere::Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projec
     shader.setMat4("view", view);
     shader.setMat4("projection", projection);
 
+    // время для шейдера
+    shader.setFloat("time", time);
+
+    // цвет сферы задаём единым униформом (и поддерживаем подсветку selected)
     glm::vec3 renderColor = selected ? glm::vec3(1.0f, 1.0f, 0.3f) : color;
-    shader.setVec3("sphereColor", renderColor);
+    shader.setBool("useObjectColor", true);
+    shader.setVec3("objectColor", renderColor);
 
     vao.Bind();
     glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);

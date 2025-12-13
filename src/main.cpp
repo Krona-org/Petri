@@ -31,9 +31,29 @@ int main()
         Scene scene;
 
         // Добавляем объекты в сцену
-        scene.AddShape(Sphere::Create(1.0f, 0, 2, 0, 125, 0, 0));
-        scene.AddShape(Sphere::Create(1.0f, 3, 2, 1, 0, 0, 0));
         scene.SetGrid(Grid::Create(500.0f, 100));  // сетка
+
+        const int size = 10; // 60³ = 216 000 сфер
+        const float spacing = 1.f;
+
+        for (int x = 0; x < size; x++)
+        {
+            for (int y = 0; y < size; y++)
+            {
+                for (int z = 0; z < size; z++)
+                {
+                    scene.AddShape(
+                        Sphere::Create(
+                            0.5f,
+                            x * spacing,
+                            y * spacing,
+                            z * spacing,
+                            12, 125, 255
+                        )
+                    );
+                }
+            }
+        }
 
         // Главный цикл
         while (!win.ShouldClose())

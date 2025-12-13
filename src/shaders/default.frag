@@ -1,4 +1,4 @@
-#version 410 core
+#version 330 core
 
 in vec3 fragColor;
 in vec3 fragPos;
@@ -10,12 +10,7 @@ uniform float time;
 
 void main()
 {
-    // Используем цвет из вершин
-    vec3 base = fragColor;
-
-    // Опциональная лёгкая анимация цвета
-    float shift = 0.1 * sin(time + fragPos.y * 5.0);
-    vec3 color = base + vec3(shift);
-
-    FragColor = vec4(color, 1.0); // полностью непрозрачная сфера
+    float shift = 0.08 * sin(time + fragPos.y * 4.0);
+    vec3 color = fragColor + vec3(shift);
+    FragColor = vec4(color, 1.0);
 }
