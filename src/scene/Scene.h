@@ -1,36 +1,39 @@
 #pragma once
+
 #include <vector>
 #include "Shape.h"
 #include "Grid.h"
 #include "Camera.h"
 #include "shaderClass.h"
 #include "TimeGL.h"
+#include "ContainerSphere.h"
 
-class Scene {
+class Scene
+{
 public:
     Scene();
     ~Scene();
 
-    // Управление объектами
+    // управление объектами
     void AddShape(Shape* shape);
     void RemoveShape(Shape* shape);
 
-    // Grid
+    // grid
     void SetGrid(Grid* g);
 
-    // Обновление сцены
-    void Update();                    // использует таймер внутри
-    void Update(float deltaTime);     // перегрузка: можно передать deltaTime извне
+    // обновление
+    void Update();                // использует внутренний таймер
+    void Update(float deltaTime); // если хочешь управлять dt вручную
 
-    // Отрисовка
+    // рендер
     void Draw(Shader& shader, Camera& camera);
-
-    // Доступ к таймеру
+    void ResolveSphereInsideContainer(ContainerSphere* container, const std::vector<Sphere*>& spheres);
+    // таймер
     float GetTotalTime() const;
     float GetDeltaTime() const;
 
 private:
     std::vector<Shape*> objects;
-    Grid* grid;
+    Grid* grid = nullptr;
     TimeGL timer;
 };

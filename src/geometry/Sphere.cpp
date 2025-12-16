@@ -2,13 +2,17 @@
 #include <glm/gtc/constants.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
-#include <iostream>
+#include <cmath>
 
 Sphere::Sphere(float rad, const glm::vec3& pos, const glm::vec3& col)
     : radius(rad)
 {
     position = pos;
     color = col;
+
+    // mass по умолчанию = 1
+    mass = 1.0f;
+    invMass = 1.0f;
 
     std::vector<float> vertices;
     std::vector<unsigned int> indices;
@@ -17,12 +21,12 @@ Sphere::Sphere(float rad, const glm::vec3& pos, const glm::vec3& col)
     indexCount = static_cast<unsigned int>(indices.size());
 
     vao.Bind();
-    vbo = new VBO(vertices.data(), vertices.size() * sizeof(float));
-    ebo = new EBO(indices.data(), indices.size() * sizeof(unsigned int));
+    vbo = new VBO(vertices.data(), (GLsizeiptr)(vertices.size() * sizeof(float)));
+    ebo = new EBO(indices.data(), (GLsizeiptr)(indices.size() * sizeof(unsigned int)));
 
-    vao.LinkAttrib(*vbo, 0, 3, GL_FLOAT, 9 * sizeof(float), (void*)0);                     // позиция
-    vao.LinkAttrib(*vbo, 1, 3, GL_FLOAT, 9 * sizeof(float), (void*)(3 * sizeof(float)));   // цвет (пока оставляем)
-    vao.LinkAttrib(*vbo, 2, 3, GL_FLOAT, 9 * sizeof(float), (void*)(6 * sizeof(float)));   // нормаль
+    vao.LinkAttrib(*vbo, 0, 3, GL_FLOAT, 9 * sizeof(float), (void*)0);                     // pos
+    vao.LinkAttrib(*vbo, 1, 3, GL_FLOAT, 9 * sizeof(float), (void*)(3 * sizeof(float)));   // color
+    vao.LinkAttrib(*vbo, 2, 3, GL_FLOAT, 9 * sizeof(float), (void*)(6 * sizeof(float)));   // normal
     vao.Unbind();
 }
 
@@ -52,17 +56,17 @@ void Sphere::generateMesh(std::vector<float>& vertices, std::vector<unsigned int
             float xCoord = xy * cosf(sectorAngle);
             float zCoord = xy * sinf(sectorAngle);
 
-            // Позиция
+            // position
             vertices.push_back(xCoord);
             vertices.push_back(yCoord);
             vertices.push_back(zCoord);
 
-            // Цвет (можно потом убрать и оставить только objectColor)
+            // color (на всякий, но ты используешь objectColor)
             vertices.push_back(color.r);
             vertices.push_back(color.g);
             vertices.push_back(color.b);
 
-            // Нормаль
+            // normal
             glm::vec3 normal = glm::normalize(glm::vec3(xCoord, yCoord, zCoord));
             vertices.push_back(normal.x);
             vertices.push_back(normal.y);
@@ -72,8 +76,8 @@ void Sphere::generateMesh(std::vector<float>& vertices, std::vector<unsigned int
 
     for (int i = 0; i < stackCount; ++i)
     {
-        unsigned int k1 = i * (sectorCount + 1);
-        unsigned int k2 = k1 + sectorCount + 1;
+        unsigned int k1 = (unsigned int)(i * (sectorCount + 1));
+        unsigned int k2 = k1 + (unsigned int)(sectorCount + 1);
 
         for (int j = 0; j < sectorCount; ++j, ++k1, ++k2)
         {
@@ -94,27 +98,55 @@ void Sphere::generateMesh(std::vector<float>& vertices, std::vector<unsigned int
     }
 }
 
+// --- Physics интеграция + пол/стены ---
+void Sphere::Update(float /*totalTime*/, float dt)
+{
+    // защита от диких dt (после зависаний/перетаскивания окна)
+    if (dt > 0.05f) dt = 0.05f;
+    if (invMass == 0.0f) return; // "неподвижный" объект
+
+    // semi-implicit Euler
+    velocity += acceleration * dt;
+    position += velocity * dt;
+
+    // Пол
+    if (position.y - radius < floorY)
+    {
+        position.y = floorY + radius;
+
+        if (velocity.y < 0.0f)
+            velocity.y = -velocity.y * restitution;
+
+        if (std::abs(velocity.y) < 0.05f)
+            velocity.y = 0.0f;
+    }
+
+    // Коробка X/Z
+    if (position.x - radius < minX) { position.x = minX + radius; if (velocity.x < 0) velocity.x = -velocity.x * restitution; }
+    if (position.x + radius > maxX) { position.x = maxX - radius; if (velocity.x > 0) velocity.x = -velocity.x * restitution; }
+
+    if (position.z - radius < minZ) { position.z = minZ + radius; if (velocity.z < 0) velocity.z = -velocity.z * restitution; }
+    if (position.z + radius > maxZ) { position.z = maxZ - radius; if (velocity.z > 0) velocity.z = -velocity.z * restitution; }
+}
+
 void Sphere::Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projection, float time)
 {
     shader.Activate();
-
+    shader.setFloat("alpha", GetAlpha());   // ← ДОБАВИТЬ
     glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
-    model = glm::rotate(model, glm::radians(time * 30.0f), glm::vec3(0.2f, 1.0f, 0.0f));
 
     shader.setMat4("model", model);
     shader.setMat4("view", view);
     shader.setMat4("projection", projection);
-
-    // время для шейдера
     shader.setFloat("time", time);
 
-    // цвет сферы задаём единым униформом (и поддерживаем подсветку selected)
+    // Если у тебя в шейдере есть useObjectColor/objectColor — оставь.
     glm::vec3 renderColor = selected ? glm::vec3(1.0f, 1.0f, 0.3f) : color;
     shader.setBool("useObjectColor", true);
     shader.setVec3("objectColor", renderColor);
 
     vao.Bind();
-    glDrawElements(GL_TRIANGLES, indexCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, (GLsizei)indexCount, GL_UNSIGNED_INT, 0);
     vao.Unbind();
 }
 

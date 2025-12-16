@@ -6,11 +6,12 @@ in vec3 normal;
 
 out vec4 FragColor;
 
+uniform float alpha;
 uniform float time;
 
 void main()
 {
     float shift = 0.08 * sin(time + fragPos.y * 4.0);
     vec3 color = fragColor + vec3(shift);
-    FragColor = vec4(color, 1.0);
+    FragColor = vec4(color, alpha);
 }

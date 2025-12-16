@@ -1,87 +1,103 @@
 #include <iostream>
 #include <exception>
+#include <cstdlib>
+#include <ctime>
 
 #include "Window.h"
 #include "shaderClass.h"
 #include "Camera.h"
-#include "TimeGL.h"
 
 #include "Sphere.h"
-#include "Line.h"
 #include "Grid.h"
-#include "Scene.h"  // новый класс сцены
+#include "Scene.h"
+#include "ContainerSphere.h"   // ВАЖНО
 
-const unsigned int width = 1920;
-const unsigned int height = 1080;
+const unsigned int width  = 1280;
+const unsigned int height = 800;
 
 int main()
 {
+    srand((unsigned int)time(nullptr));
+
     try
     {
-        // Создаём окно через наш класс Window
-        Window win(width, height, "Название окна");
+        Window win(width, height, "Sphere Container Test");
 
-        // Шейдер
         Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
 
-        // Камера
-        Camera camera(width, height, glm::vec3(0.0f, 1.0f, 3.0f));
+        Camera camera(
+            width,
+            height,
+            glm::vec3(0.0f, 10.0f, 18.0f)   // позиция камеры
+        );
+        camera.Orientation = glm::normalize(
+            glm::vec3(0.0f, -0.4f, -1.0f)
+        );
 
-        // Сцена
         Scene scene;
+        // сетка (ориентир)
+        scene.SetGrid(Grid::Create(500.0f, 100));
 
-        // Добавляем объекты в сцену
-        scene.SetGrid(Grid::Create(500.0f, 100));  // сетка
+        auto* container = new ContainerSphere(
+            6.0f,                            // радиус
+            glm::vec3(0.0f, 6.0f, 0.0f),      // центр
+            glm::vec3(0.2f, 0.8f, 1.0f)       // цвет
+        );
+        container->SetUseWorldBounds(false);
+        container->SetMass(0.0f);
 
-        const int size = 10; // 60³ = 216 000 сфер
-        const float spacing = 1.f;
+        container->SetAlpha(0.25f);          // прозрачность
+        scene.AddShape(container);
 
-        for (int x = 0; x < size; x++)
+        // МАЛЕНЬКИЕ ШАРЫ ВНУТРИ
+
+        const int sphereCount = 1;
+        const float innerR = 6.0f - 0.6f;    // контейнер - радиус шара
+
+        for (int i = 0; i < sphereCount; i++)
         {
-            for (int y = 0; y < size; y++)
-            {
-                for (int z = 0; z < size; z++)
-                {
-                    scene.AddShape(
-                        Sphere::Create(
-                            0.5f,
-                            x * spacing,
-                            y * spacing,
-                            z * spacing,
-                            12, 125, 255
-                        )
-                    );
-                }
-            }
+            float rx = ((rand() % 200) / 100.0f - 1.0f) * innerR * 0.5f;
+            float ry = ((rand() % 200) / 100.0f - 1.0f) * innerR * 0.5f;
+            float rz = ((rand() % 200) / 100.0f - 1.0f) * innerR * 0.5f;
+
+            auto* s = Sphere::Create(
+                5.7f,
+                rx,
+                6.0f + ry,
+                rz,
+                rand() % 256,
+                rand() % 256,
+                rand() % 256
+            );
+
+            s->SetMass(0.1f);
+            s->SetAlpha(1.0f);
+            s->SetUseWorldBounds(false);
+
+            s->SetVelocity(glm::vec3(
+                (rand() % 200 - 100) * 0.04f,
+                (rand() % 200 - 100) * 0.04f,
+                (rand() % 200 - 100) * 0.04f
+            ));
+
+            scene.AddShape(s);
         }
 
-        // Главный цикл
         while (!win.ShouldClose())
         {
-            // Обновляем камеру (обработка WASD и мыши)
             camera.Inputs(win.window);
 
-            // Обновляем сцену (таймер, анимации объектов)
             scene.Update();
 
-            // Очистка экрана с плавным изменением цвета по времени
-            float t = scene.GetTotalTime();  // можно добавить метод GetTime() в Scene, чтобы возвращать totalTime
-            glClearColor(
-                0.1f + 0.05f * sin(t),
-                0.1f + 0.05f * cos(t),
-                0.2f + 0.05f * sin(t * 1.3f),
-                1.0f
-            );
+            glClearColor(0.05f, 0.06f, 0.08f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            // Рендер сцены с текущей камерой
             scene.Draw(shaderProgram, camera);
 
-            win.SwapBuffers(); // обмен буферов
-            win.PollEvents();  // обработка событий
+            win.SwapBuffers();
+            win.PollEvents();
         }
 
-        // Очистка — Scene удаляет свои объекты
         shaderProgram.Delete();
     }
     catch (const std::exception& e)
