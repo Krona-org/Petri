@@ -3,6 +3,10 @@
 #include <cstdlib>
 #include <ctime>
 
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+
 #include "Window.h"
 #include "shaderClass.h"
 #include "Camera.h"
@@ -22,6 +26,18 @@ int main()
     try
     {
         Window win(width, height, "Sphere Container Test");
+
+        // имгуи 
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGuiIO& io = ImGui::GetIO();
+        (void)io;
+
+        ImGui::StyleColorsDark();
+
+        ImGui_ImplGlfw_InitForOpenGL(win.window, true);
+        ImGui_ImplOpenGL3_Init("#version 330");
+
 
         Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
 
@@ -85,18 +101,52 @@ int main()
 
         while (!win.ShouldClose())
         {
-            camera.Inputs(win.window);
+            ImGuiIO& io = ImGui::GetIO();
+            if (!io.WantCaptureMouse && !io.WantCaptureKeyboard)
+            {
+                camera.Inputs(win.window);
+            }
 
-            scene.Update();
+            // === ImGui frame ===
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
 
-            glClearColor(0.05f, 0.06f, 0.08f, 1.0f);
+            ImGui::Begin("ImGui Test");
+
+            ImGui::Text("Hello! ImGui is working.");
+
+            static float clearColor[3] = { 0.05f, 0.06f, 0.08f };
+            ImGui::ColorEdit3("Background color", clearColor);
+
+            static bool pausePhysics = false;
+            ImGui::Checkbox("Pause physics", &pausePhysics);
+
+            ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+
+            ImGui::End();
+
+
+            if (!pausePhysics)
+                scene.Update();
+
+
+            glClearColor(clearColor[0], clearColor[1], clearColor[2], 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             scene.Draw(shaderProgram, camera);
 
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
             win.SwapBuffers();
             win.PollEvents();
         }
+
+        ImGui_ImplOpenGL3_Shutdown();
+        ImGui_ImplGlfw_Shutdown();
+        ImGui::DestroyContext();
 
         shaderProgram.Delete();
     }
