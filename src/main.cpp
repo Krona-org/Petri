@@ -79,6 +79,8 @@ int main()
         while (!win.ShouldClose())
         {
 
+            scene.Update();
+
             ImGuiIO& io = ImGui::GetIO();
             if (!io.WantCaptureMouse && !io.WantCaptureKeyboard)
             {
