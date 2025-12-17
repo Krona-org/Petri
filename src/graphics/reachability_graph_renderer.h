@@ -27,7 +27,7 @@ public:
         const ReachabilityGraphData& graph,
         float radius = 12.0f
     );
-
+    
     void BuildTreeLayout(
     const ReachabilityGraphData& graph,
     float levelStep = 3.0f,

@@ -75,9 +75,6 @@ void ReachabilityGraph::Build(const PetriNet& net, const Marking& initial)
     }
 }
 
-// =====================
-// Save to file
-// =====================
 
 void ReachabilityGraph::SaveToFile(const std::string& filename) const
 {
