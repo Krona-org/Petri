@@ -14,18 +14,18 @@ file(GLOB_RECURSE PETRI_SOURCES
 add_library(petri STATIC ${PETRI_SOURCES})
 
 target_include_directories(petri PUBLIC
-    ${CMAKE_SOURCE_DIR}/petri_log
+    ${CMAKE_SOURCE_DIR}/petri_log 
 )
 
 # ================= APP =================
 file(GLOB_RECURSE SOURCES
     src/*.cpp
     src/*.c
-)
+) 
 
 add_executable(app ${SOURCES})
 
-target_include_directories(app PRIVATE
+target_include_directories(app PRIVATE 
     ${CMAKE_SOURCE_DIR}/inc
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/src/graphics
