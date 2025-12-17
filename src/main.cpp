@@ -16,6 +16,8 @@
 #include "Scene.h"
 #include "ContainerSphere.h"   // ВАЖНО
 
+#include "petri_loader.h"
+
 const unsigned int width  = 1280;
 const unsigned int height = 800;
 
