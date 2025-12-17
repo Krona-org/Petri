@@ -31,8 +31,8 @@ void Line::Draw(Shader& shader, const glm::mat4& view, const glm::mat4& projecti
 {
     shader.Activate();
 
-    // линии используют цвет из вершин
     shader.setBool("useObjectColor", false);
+    shader.setFloat("alpha", 1.0f);   // ← ВОТ ЭТО КЛЮЧЕВО
     shader.setFloat("time", time);
 
     glm::mat4 model = glm::mat4(1.0f);

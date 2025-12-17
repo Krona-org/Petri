@@ -6,7 +6,7 @@
 
 class Shape {
 public:
-    Shape() : position(0.0f), color(1.0f), selected(false) {}
+    Shape() : position(0.0f), color(1.0f), selected(false), alpha(1.0f) {}
     virtual ~Shape() {}
 
     virtual void Draw(Shader& shader,
@@ -38,6 +38,7 @@ protected:
     glm::vec3 color;
     float alpha;
     bool selected;
+    
 };
 
 #endif

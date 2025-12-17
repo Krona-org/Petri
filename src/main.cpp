@@ -4,12 +4,10 @@
 #include <ctime>
 #include <string>
 
-// ================= ImGui =================
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 
-// ================= Engine =================
 #include "Window.h"
 #include "shaderClass.h"
 #include "Camera.h"
@@ -19,11 +17,9 @@
 #include "ContainerSphere.h"
 #include "Line.h"
 
-// ================= Petri =================
 #include "petri_loader.h"
 #include "reachability_graph.h"
 
-// ================= Reachability Visualization =================
 #include "rg_loader.h"
 #include "reachability_graph_renderer.h"
 
@@ -36,14 +32,8 @@ int main()
 
     try
     {
-        // =====================================================
-        // Window
-        // =====================================================
         Window win(width, height, "Petri Reachability Test");
 
-        // =====================================================
-        // ImGui init
-        // =====================================================
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui::StyleColorsDark();
@@ -51,9 +41,6 @@ int main()
         ImGui_ImplGlfw_InitForOpenGL(win.window, true);
         ImGui_ImplOpenGL3_Init("#version 330");
 
-        // =====================================================
-        // OpenGL objects
-        // =====================================================
         Shader shaderProgram("shaders/default.vert", "shaders/default.frag");
 
         Camera camera(
@@ -67,18 +54,15 @@ int main()
         scene.SetGrid(Grid::Create(500.0f, 100));
 
         auto* container = new ContainerSphere(
-            6.0f,
+            100.0f,
             glm::vec3(0.0f, 6.0f, 0.0f),
             glm::vec3(0.2f, 0.8f, 1.0f)
         );
         container->SetUseWorldBounds(false);
         container->SetMass(0.0f);
         container->SetAlpha(0.25f);
-        scene.AddShape(container);
+        //scene.AddShape(container);
 
-        // =====================================================
-        // Petri state
-        // =====================================================
         bool petriLoaded = false;
         bool rgBuilt = false;
         std::string petriStatus = "Petri net not loaded";
@@ -86,40 +70,30 @@ int main()
         size_t rgNodes = 0;
         size_t rgEdges = 0;
 
-        // =====================================================
-        // Reachability visualization state
-        // =====================================================
         ReachabilityGraphData rgData;
         std::string rgLoadError;
         bool rgLoaded = false;
 
         ReachabilityGraphRenderer rgRenderer(scene);
 
-        // =====================================================
-        // Main loop
-        // =====================================================
         while (!win.ShouldClose())
         {
+
             ImGuiIO& io = ImGui::GetIO();
             if (!io.WantCaptureMouse && !io.WantCaptureKeyboard)
             {
                 camera.Inputs(win.window);
             }
 
-            // ================= ImGui frame =================
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
 
-            // =================================================
-            // ImGui window
-            // =================================================
             ImGui::Begin("Petri / Reachability Test");
 
             ImGui::Text("Petri Net and Reachability Graph");
             ImGui::Separator();
 
-            // ---------- Load Petri ----------
             if (ImGui::Button("Load Petri Net (example.pn)"))
             {
                 try
@@ -144,7 +118,6 @@ int main()
 
             ImGui::Separator();
 
-            // ---------- Build Reachability ----------
             if (petriLoaded && ImGui::Button("Build Reachability Graph"))
             {
                 try
@@ -182,7 +155,6 @@ int main()
             ImGui::Separator();
             ImGui::Text("Reachability Graph Visualization");
 
-            // ---------- Load RG ----------
             if (ImGui::Button("Load reachability.rg"))
             {
                 rgLoaded = RGLoader_load::LoadFromFile(
@@ -220,10 +192,9 @@ int main()
             ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
             ImGui::End();
 
-            // ================= Render =================
             glClearColor(0.05f, 0.06f, 0.08f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+            
             scene.Draw(shaderProgram, camera);
 
             ImGui::Render();
@@ -233,9 +204,7 @@ int main()
             win.PollEvents();
         }
 
-        // =====================================================
-        // Shutdown
-        // =====================================================
+
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
