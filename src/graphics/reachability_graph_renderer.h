@@ -28,6 +28,12 @@ public:
         float radius = 12.0f
     );
 
+    void BuildTreeLayout(
+    const ReachabilityGraphData& graph,
+    float levelStep = 3.0f,
+    float nodeSpacing = 3.0f
+    );
+
     // ВОТ ЭТО НУЖНО main.cpp
     const std::vector<Label3D>& GetNodeLabels() const;
     const std::vector<Label3D>& GetEdgeLabels() const;
