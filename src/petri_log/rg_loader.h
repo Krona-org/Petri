@@ -2,13 +2,13 @@
 #include <vector>
 #include <string>
 
-struct RGNode
+struct RGNode_load
 {
     int id;
     std::vector<int> marking;
 };
 
-struct RGEdge
+struct RGEdge_load
 {
     int from;
     int to;
@@ -17,11 +17,11 @@ struct RGEdge
 
 struct ReachabilityGraphData
 {
-    std::vector<RGNode> nodes;
-    std::vector<RGEdge> edges;
+    std::vector<RGNode_load> nodes;
+    std::vector<RGEdge_load> edges;
 };
 
-class RGLoader
+class RGLoader_load
 {
 public:
     static bool LoadFromFile(

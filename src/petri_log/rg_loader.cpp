@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 
-bool RGLoader::LoadFromFile(
+bool RGLoader_load::LoadFromFile(
     const std::string& path,
     ReachabilityGraphData& outGraph,
     std::string& outError
@@ -36,7 +36,7 @@ bool RGLoader::LoadFromFile(
 
         if (type == 'N')
         {
-            RGNode node;
+            RGNode_load node;
             iss >> node.id;
 
             int token;
@@ -47,7 +47,7 @@ bool RGLoader::LoadFromFile(
         }
         else if (type == 'E')
         {
-            RGEdge edge;
+            RGEdge_load edge;
             iss >> edge.from >> edge.to >> edge.transition;
             outGraph.edges.push_back(edge);
         }

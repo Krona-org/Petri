@@ -6,27 +6,30 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(OpenGL REQUIRED)
 
-# ================= PETRI =================
+# ================= PETRI (CORE LOGIC) =================
 file(GLOB_RECURSE PETRI_SOURCES
-    petri_log/*.cpp
+    src/petri_log/*.cpp
 )
 
 add_library(petri STATIC ${PETRI_SOURCES})
 
 target_include_directories(petri PUBLIC
-    ${CMAKE_SOURCE_DIR}/petri_log 
+    ${CMAKE_SOURCE_DIR}/src/petri_log
 )
 
-# ================= APP =================
-file(GLOB_RECURSE SOURCES
+# ================= APP (OPENGL + UI) =================
+file(GLOB_RECURSE APP_SOURCES
     src/*.cpp
     src/*.c
-) 
+)
 
-add_executable(app ${SOURCES})
+#  УБИРАЕМ petri_log ИЗ app
+list(FILTER APP_SOURCES EXCLUDE REGEX ".*/petri_log/.*")
 
-target_include_directories(app PRIVATE 
-    ${CMAKE_SOURCE_DIR}/inc
+add_executable(app ${APP_SOURCES})
+
+target_include_directories(app PRIVATE
+    ${CMAKE_SOURCE_DIR}/inc 
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/src/graphics
     ${CMAKE_SOURCE_DIR}/src/scene

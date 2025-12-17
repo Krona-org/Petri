@@ -185,7 +185,7 @@ int main()
             // ---------- Load RG ----------
             if (ImGui::Button("Load reachability.rg"))
             {
-                rgLoaded = RGLoader::LoadFromFile(
+                rgLoaded = RGLoader_load::LoadFromFile(
                     "reachability.rg",
                     rgData,
                     rgLoadError

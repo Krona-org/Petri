@@ -1,20 +1,26 @@
 #pragma once
 
-#include "rg_loader.h"
+#include <vector>
+#include <glm/glm.hpp>
+
 #include "Scene.h"
 #include "Sphere.h"
 #include "Line.h"
+#include "rg_loader.h"
 
 class ReachabilityGraphRenderer
 {
 public:
-    ReachabilityGraphRenderer(Scene& scene);
+    explicit ReachabilityGraphRenderer(Scene& scene);
     ~ReachabilityGraphRenderer();
 
+    // Очистка визуализации (вызывать ТОЛЬКО кнопкой)
     void Clear();
+
+    // Построение графа (НЕ очищает автоматически)
     void BuildCircleLayout(
         const ReachabilityGraphData& graph,
-        float radius = 6.0f
+        float radius = 12.0f
     );
 
 private:
