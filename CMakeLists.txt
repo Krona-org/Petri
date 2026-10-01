@@ -25,10 +25,17 @@ target_include_directories(app PRIVATE
 find_package(OpenGL REQUIRED)
 
 # === Линковка библиотек ===
-target_link_libraries(app PRIVATE
-    OpenGL::GL
-    ${CMAKE_SOURCE_DIR}/lib/glfw3.lib
-)
+if(MSVC)
+    target_link_libraries(app PRIVATE
+        OpenGL::GL
+        ${CMAKE_SOURCE_DIR}/lib/glfw3.lib
+    )
+else()
+    target_link_libraries(app PRIVATE
+        OpenGL::GL
+        ${CMAKE_SOURCE_DIR}/lib/libglfw3.a
+    )
+endif()
 
 # === Копирование шейдеров после сборки ===
 add_custom_command(TARGET app POST_BUILD
